@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>EduPortal - Student & Admin</title>
+    <title>EduPortal - Student & Admin with Topics</title>
     
     <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -14,6 +14,9 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
+    <!-- Three.js for 3D -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     
     <style>
         * {
@@ -87,6 +90,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            cursor: pointer;
         }
 
         .logo i {
@@ -121,7 +125,6 @@
             }
         }
 
-        /* Social Media Icons - Scrollable on mobile */
         .social-media {
             display: flex;
             gap: 10px;
@@ -255,6 +258,13 @@
             background: #00d4ff;
             color: #1a1a2e;
             box-shadow: 0 0 20px #00d4ff;
+        }
+
+        .menu-toggle {
+            display: none;
+            font-size: 1.5rem;
+            color: #00d4ff;
+            cursor: pointer;
         }
 
         /* ===== MAIN CONTAINER ===== */
@@ -698,6 +708,93 @@
             }
         }
 
+        /* ===== TOPICS GRID ===== */
+        .topics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        .topic-card {
+            background: rgba(255,255,255,0.05);
+            border: 2px solid #00d4ff;
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .topic-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 30px rgba(0,212,255,0.4);
+        }
+
+        .topic-number {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #00d4ff;
+            margin-bottom: 5px;
+            text-shadow: 0 0 20px #00d4ff;
+        }
+
+        .topic-title {
+            font-size: 0.95rem;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+
+        .practical-badge {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: #ff4444;
+            color: #fff;
+            padding: 3px 8px;
+            border-radius: 15px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* ===== SUBJECT CONTENT SECTION (Previous Questions) ===== */
+        .subject-content-section {
+            background: rgba(255,255,255,0.03);
+            border: 2px solid #00d4ff;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        @media (min-width: 768px) {
+            .subject-content-section {
+                padding: 30px;
+            }
+        }
+
+        .subject-content-title {
+            color: #00d4ff;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        @media (min-width: 768px) {
+            .subject-content-title {
+                font-size: 1.5rem;
+            }
+        }
+
         /* ===== BREADCRUMB ===== */
         .breadcrumb {
             display: flex;
@@ -797,6 +894,9 @@
             cursor: pointer;
             transition: 0.3s;
             font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
 
         @media (min-width: 768px) {
@@ -814,6 +914,7 @@
         .content-tab:hover {
             background: #00d4ff;
             color: #1a1a2e;
+            transform: translateY(-2px);
         }
 
         .content-display {
@@ -827,36 +928,6 @@
             .content-display {
                 min-height: 300px;
                 padding: 20px;
-            }
-        }
-
-        /* Subject Content Section - New for Previous Questions */
-        .subject-content-section {
-            background: rgba(255,255,255,0.03);
-            border: 2px solid #00d4ff;
-            border-radius: 15px;
-            padding: 20px;
-            margin: 20px 0;
-        }
-
-        @media (min-width: 768px) {
-            .subject-content-section {
-                padding: 30px;
-            }
-        }
-
-        .subject-content-title {
-            color: #00d4ff;
-            font-size: 1.2rem;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        @media (min-width: 768px) {
-            .subject-content-title {
-                font-size: 1.5rem;
             }
         }
 
@@ -876,7 +947,49 @@
             height: 100%;
         }
 
-        /* PDF Viewer Styles */
+        /* 3D Container */
+        .three-d-container {
+            width: 100%;
+            height: 400px;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        #threeDCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .three-d-controls {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 10;
+        }
+
+        .three-d-btn {
+            width: 35px;
+            height: 35px;
+            background: rgba(0,212,255,0.8);
+            border: none;
+            border-radius: 50%;
+            color: #1a1a2e;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: 0.3s;
+            backdrop-filter: blur(5px);
+        }
+
+        .three-d-btn:hover {
+            background: #00d4ff;
+            transform: scale(1.1);
+        }
+
+        /* PDF Viewer */
         .pdf-container {
             width: 100%;
             height: 400px;
@@ -931,7 +1044,14 @@
             text-decoration: underline;
         }
 
-        /* Questions List */
+        .notes-content {
+            white-space: pre-wrap;
+            line-height: 1.8;
+            color: #fff;
+            font-size: 14px;
+            padding: 15px;
+        }
+
         .questions-list {
             list-style: none;
             padding: 0;
@@ -953,6 +1073,14 @@
 
         .questions-list li:last-child {
             border-bottom: none;
+        }
+
+        .questions-list li::before {
+            content: '•';
+            color: #00d4ff;
+            font-weight: bold;
+            display: inline-block;
+            width: 20px;
         }
 
         /* ===== LOADING ===== */
@@ -1064,6 +1192,37 @@
             display: none !important;
         }
 
+        /* ===== BACK TO TOP ===== */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 20px;
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #00d4ff, #00a8cc);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1a1a2e;
+            text-decoration: none;
+            font-size: 1.2rem;
+            box-shadow: 0 0 30px #00d4ff;
+            opacity: 0;
+            visibility: hidden;
+            transition: 0.3s;
+            z-index: 998;
+        }
+
+        .back-to-top.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .back-to-top:hover {
+            transform: translateY(-5px);
+        }
+
         /* Mobile-specific adjustments */
         @media (max-width: 480px) {
             .social-icon {
@@ -1082,6 +1241,11 @@
             .content-box h3 {
                 font-size: 1rem;
             }
+
+            .back-to-top {
+                bottom: 20px;
+                right: 10px;
+            }
         }
     </style>
 </head>
@@ -1089,26 +1253,26 @@
     <!-- Navbar -->
     <nav class="navbar">
         <div class="logo-section">
-            <div class="logo">
+            <div class="logo" onclick="navigateTo('branches')">
                 <i class="fas fa-graduation-cap"></i>
                 <div>
-                    <h1>suraj Ai</h1>
+                    <h1>SURAJ AI</h1>
                     <span style="font-size: 0.7rem; color: #00d4ff;">Learn & Grow</span>
                 </div>
             </div>
             
             <!-- Social Media Handles -->
             <div class="social-media">
-                <a href="https://www.instagram.com/backlock_2024?igsh=MWMzc29leG45dmJqbQ=="  class="social-icon" title="Instagram">
+                <a href="https://www.instagram.com/backlock_2024?igsh=MWMzc29leG45dmJqbQ==" class="social-icon" title="Instagram">
                     <i class="fab fa-instagram"></i>
                 </a>
-                <a href="https://www.facebook.com/profile.php?id=61579322197572&mibextid=ZbWKwL"  class="social-icon" title="Facebook">
+                <a href="https://www.facebook.com/profile.php?id=61579322197572&mibextid=ZbWKwL" class="social-icon" title="Facebook">
                     <i class="fab fa-facebook-f"></i>
                 </a>
-                <a href="https://t.me/animesupperworld"  class="social-icon" title="Telegram">
+                <a href="https://t.me/animesupperworld" class="social-icon" title="Telegram">
                     <i class="fab fa-telegram-plane"></i>
                 </a>
-                <a href="https://x.com/solutionenjo127" class="social-icon" title="Twitter">
+                <a href="https://x.com/solutionenjo127"  class="social-icon" title="Twitter">
                     <i class="fab fa-twitter"></i>
                 </a>
                 <a href="https://pin.it/1LF1j46WC"  class="social-icon" title="Pinterest">
@@ -1117,7 +1281,7 @@
                 <a href="https://youtube.com"  class="social-icon" title="YouTube">
                     <i class="fab fa-youtube"></i>
                 </a>
-                <a href="https://surajlabai.github.io/suraj" target="_blank" class="social-icon" title="Portfolio">
+                <a href="https://surajlabai.github.io/suraj"  class="social-icon" title="Portfolio">
                     <i class="fas fa-briefcase"></i>
                 </a>
             </div>
@@ -1125,7 +1289,11 @@
         
         <div class="nav-links">
             <a onclick="switchMode('student')"><i class="fas fa-user-graduate"></i> Student</a>
-            <a onclick="switchMode('admin')" class="premium-btn"><i class="fas fa-user-cog"></i> Admin</a>
+            <a onclick="switchMode('admin')" class="premium-btn"><i class="fas fa-user-cog"></i> Suraj Ai</a>
+        </div>
+
+        <div class="menu-toggle" onclick="toggleMenu()">
+            <i class="fas fa-bars"></i>
         </div>
     </nav>
 
@@ -1135,7 +1303,7 @@
         <div id="studentView">
             <!-- Breadcrumb -->
             <div class="breadcrumb" id="studentBreadcrumb">
-                <span class="breadcrumb-item active" onclick="studentNavigateTo('branches')">Branches</span>
+                <span class="breadcrumb-item active" onclick="navigateTo('branches')">Branches</span>
             </div>
 
             <!-- Content Grid -->
@@ -1163,6 +1331,7 @@
                             <button class="admin-tab" onclick="switchAdminTab('semesters')">Semesters</button>
                             <button class="admin-tab" onclick="switchAdminTab('subjects')">Subjects</button>
                             <button class="admin-tab" onclick="switchAdminTab('units')">Units</button>
+                            <button class="admin-tab" onclick="switchAdminTab('topics')">Topics</button>
                             <button class="admin-tab" onclick="switchAdminTab('content')">Content</button>
                         </div>
                     </div>
@@ -1176,6 +1345,11 @@
             </div>
         </div>
     </div>
+
+    <!-- Back to Top -->
+    <a href="#" class="back-to-top" id="backToTop">
+        <i class="fas fa-arrow-up"></i>
+    </a>
 
     <script>
         // Firebase Configuration
@@ -1195,12 +1369,18 @@
             branchId: null,
             semesterId: null,
             subjectId: null,
-            unitId: null
+            unitId: null,
+            topicId: null
         };
         let currentAdminTab = 'branches';
         let editingItem = null;
         let currentNotesPdf = null;
         let currentQuestionsPdf = null;
+        let currentPractical3d = null;
+
+        // 3D Variables
+        let scene, camera, renderer, cube;
+        let rotationSpeed = 0.01;
 
         // Switch between student and admin mode
         function switchMode(mode) {
@@ -1208,7 +1388,7 @@
             if (mode === 'student') {
                 document.getElementById('studentView').classList.remove('hidden');
                 document.getElementById('adminView').classList.add('hidden');
-                loadStudentView();
+                navigateTo('branches');
             } else {
                 document.getElementById('studentView').classList.add('hidden');
                 document.getElementById('adminView').classList.remove('hidden');
@@ -1226,7 +1406,7 @@
         // Verify admin password
         function verifyAdmin() {
             const password = document.getElementById('adminPassword').value;
-            if (password === 'admin123') { // You can change this password
+            if (password === 'suraj@127') { // You can change this password
                 adminAuthenticated = true;
                 document.getElementById('adminAccess').classList.add('hidden');
                 document.getElementById('adminPanel').classList.remove('hidden');
@@ -1236,19 +1416,30 @@
             }
         }
 
-        // Load Student View
-        function loadStudentView() {
+        // Navigation Functions
+        function navigateTo(type, branchId = null, semesterId = null, subjectId = null, unitId = null, topicId = null) {
+            currentStudentPath = { type, branchId, semesterId, subjectId, unitId, topicId };
             updateStudentBreadcrumb();
-            if (currentStudentPath.type === 'branches') {
-                loadBranches();
-            } else if (currentStudentPath.type === 'semesters') {
-                loadSemesters(currentStudentPath.branchId);
-            } else if (currentStudentPath.type === 'subjects') {
-                loadSubjects(currentStudentPath.branchId, currentStudentPath.semesterId);
-            } else if (currentStudentPath.type === 'units') {
-                loadUnits(currentStudentPath.branchId, currentStudentPath.semesterId, currentStudentPath.subjectId);
-            } else if (currentStudentPath.type === 'content') {
-                loadContent(currentStudentPath.branchId, currentStudentPath.semesterId, currentStudentPath.subjectId, currentStudentPath.unitId);
+            
+            switch(type) {
+                case 'branches':
+                    loadBranches();
+                    break;
+                case 'semesters':
+                    loadSemesters(branchId);
+                    break;
+                case 'subjects':
+                    loadSubjects(branchId, semesterId);
+                    break;
+                case 'units':
+                    loadUnits(branchId, semesterId, subjectId);
+                    break;
+                case 'topics':
+                    loadTopics(branchId, semesterId, subjectId, unitId);
+                    break;
+                case 'content':
+                    loadContent(branchId, semesterId, subjectId, unitId, topicId);
+                    break;
             }
         }
 
@@ -1264,7 +1455,7 @@
                 Object.keys(branches).forEach(key => {
                     const branch = branches[key];
                     html += `
-                        <div class="content-box" onclick="studentNavigateTo('semesters', '${key}')">
+                        <div class="content-box" onclick="navigateTo('semesters', '${key}')">
                             <i class="fas fa-building"></i>
                             <h3>${branch.name}</h3>
                             <p>${branch.description || ''}</p>
@@ -1287,11 +1478,10 @@
                 const semesters = snapshot.val() || {};
                 let html = '<div class="content-grid">';
                 
-                // Create 6 semesters by default
                 for (let i = 1; i <= 6; i++) {
                     const semesterData = semesters[i] || { name: `Semester ${i}` };
                     html += `
-                        <div class="content-box" onclick="studentNavigateTo('subjects', '${branchId}', ${i})">
+                        <div class="content-box" onclick="navigateTo('subjects', '${branchId}', ${i})">
                             <i class="fas fa-calendar-alt"></i>
                             <h3>Semester ${i}</h3>
                             <p>${semesterData.description || `Semester ${i} Subjects`}</p>
@@ -1305,19 +1495,51 @@
             });
         }
 
-        // Load Subjects
+        // Load Subjects with Previous Questions
         function loadSubjects(branchId, semesterId) {
             const content = document.getElementById('studentContent');
             content.innerHTML = '<div class="loader"><div class="loader-circle"></div><div class="loader-circle"></div><div class="loader-circle"></div></div>';
             
-            database.ref(`branches/${branchId}/semesters/${semesterId}/subjects`).once('value', (snapshot) => {
-                const subjects = snapshot.val() || {};
-                let html = '<div class="content-grid">';
+            Promise.all([
+                database.ref(`branches/${branchId}/semesters/${semesterId}/subjects`).once('value'),
+                database.ref(`branches/${branchId}/semesters/${semesterId}/subjects`).once('value')
+            ]).then(([subjectsSnapshot]) => {
+                const subjects = subjectsSnapshot.val() || {};
+                let html = '';
+                
+                // Previous Questions Section at Subject Level
+                html += '<div class="subject-content-section">';
+                html += '<h3 class="subject-content-title"><i class="fas fa-question-circle"></i> Previous Year Questions</h3>';
+                
+                // Check if any subject has questions PDF
+                let hasQuestions = false;
+                Object.keys(subjects).forEach(key => {
+                    const subject = subjects[key];
+                    if (subject.questionsPdf) {
+                        hasQuestions = true;
+                        html += `
+                            <div class="file-info" style="margin-bottom: 15px;">
+                                <i class="fas fa-file-pdf"></i>
+                                <a href="${subject.questionsPdf}" target="_blank">${subject.name} - Previous Questions PDF</a>
+                            </div>
+                        `;
+                    }
+                });
+                
+                if (!hasQuestions) {
+                    html += '<p style="color: #00d4ff; text-align: center;">No previous questions available</p>';
+                }
+                
+                html += '</div>';
+                
+                // Subjects Grid
+                html += '<h3 style="margin: 20px 0; color: #00d4ff;"><i class="fas fa-book"></i> Subjects</h3>';
+                html += '<div class="content-grid">';
                 
                 Object.keys(subjects).forEach(key => {
                     const subject = subjects[key];
                     html += `
-                        <div class="content-box" onclick="loadSubjectDetails('${branchId}', ${semesterId}, '${key}')">
+                        <div class="content-box" onclick="navigateTo('units', '${branchId}', ${semesterId}, '${key}')">
                             <i class="fas fa-book"></i>
                             <h3>${subject.name}</h3>
                             <p>${subject.description || ''}</p>
@@ -1331,109 +1553,112 @@
             });
         }
 
-        // Load Subject Details (Units + Previous Questions)
-        function loadSubjectDetails(branchId, semesterId, subjectId) {
+        // Load Units
+        function loadUnits(branchId, semesterId, subjectId) {
             const content = document.getElementById('studentContent');
             content.innerHTML = '<div class="loader"><div class="loader-circle"></div><div class="loader-circle"></div><div class="loader-circle"></div></div>';
             
-            Promise.all([
-                database.ref(`branches/${branchId}/semesters/${semesterId}/subjects/${subjectId}/units`).once('value'),
-                database.ref(`branches/${branchId}/semesters/${semesterId}/subjects/${subjectId}`).once('value')
-            ]).then(([unitsSnapshot, subjectSnapshot]) => {
-                const units = unitsSnapshot.val() || {};
-                const subject = subjectSnapshot.val() || {};
+            database.ref(`branches/${branchId}/semesters/${semesterId}/subjects/${subjectId}/units`).once('value', (snapshot) => {
+                const units = snapshot.val() || {};
                 
-                let html = `
-                    <!-- Previous Questions Section at Subject Level -->
-                    <div class="subject-content-section">
-                        <h3 class="subject-content-title">
-                            <i class="fas fa-question-circle"></i> Previous Year Questions - ${subject.name}
-                        </h3>
-                `;
-                
-                if (subject.questionsPdf) {
-                    html += `
-                        <div class="file-info">
-                            <i class="fas fa-file-pdf"></i>
-                            <a href="${subject.questionsPdf}" target="_blank">Download Questions PDF</a>
-                        </div>
-                        <div class="pdf-container">
-                            <iframe src="${subject.questionsPdf}" width="100%" height="400px"></iframe>
-                        </div>
-                    `;
-                } else {
-                    html += `<p style="color: #00d4ff; text-align: center;">No previous questions available</p>`;
-                }
-                
-                html += `</div>`;
-                
-                // Units Section
-                html += '<h3 style="margin: 20px 0; color: #00d4ff;"><i class="fas fa-layer-group"></i> Units</h3>';
-                html += '<div class="content-grid">';
-                
-                Object.keys(units).forEach(key => {
-                    const unit = units[key];
-                    html += `
-                        <div class="content-box" onclick="studentNavigateTo('content', '${branchId}', ${semesterId}, '${subjectId}', '${key}')">
-                            <i class="fas fa-file-alt"></i>
-                            <h3>${unit.name}</h3>
-                            <p>${unit.description || ''}</p>
-                        </div>
-                    `;
+                // Get subject name
+                database.ref(`branches/${branchId}/semesters/${semesterId}/subjects/${subjectId}`).once('value', (subjectSnapshot) => {
+                    const subject = subjectSnapshot.val() || { name: 'Subject' };
+                    
+                    let html = `<h3 style="margin: 20px 0; color: #00d4ff;"><i class="fas fa-layer-group"></i> ${subject.name} - Units</h3>`;
+                    html += '<div class="content-grid">';
+                    
+                    Object.keys(units).forEach(key => {
+                        const unit = units[key];
+                        html += `
+                            <div class="content-box" onclick="navigateTo('topics', '${branchId}', ${semesterId}, '${subjectId}', '${key}')">
+                                <i class="fas fa-layer-group"></i>
+                                <h3>${unit.name}</h3>
+                                <p>${unit.description || ''}</p>
+                                <div class="content-count">${unit.topicCount || 0}</div>
+                            </div>
+                        `;
+                    });
+                    
+                    html += '</div>';
+                    content.innerHTML = html;
                 });
-                
-                html += '</div>';
-                content.innerHTML = html;
             });
         }
 
-        // Load Units (for backward compatibility)
-        function loadUnits(branchId, semesterId, subjectId) {
-            loadSubjectDetails(branchId, semesterId, subjectId);
+        // Load Topics (1.1, 1.2, 1.3 format)
+        function loadTopics(branchId, semesterId, subjectId, unitId) {
+            const content = document.getElementById('studentContent');
+            content.innerHTML = '<div class="loader"><div class="loader-circle"></div><div class="loader-circle"></div><div class="loader-circle"></div></div>';
+            
+            database.ref(`branches/${branchId}/semesters/${semesterId}/subjects/${subjectId}/units/${unitId}/topics`).once('value', (snapshot) => {
+                const topics = snapshot.val() || {};
+                
+                // Get unit name
+                database.ref(`branches/${branchId}/semesters/${semesterId}/subjects/${subjectId}/units/${unitId}`).once('value', (unitSnapshot) => {
+                    const unit = unitSnapshot.val() || { name: 'Unit' };
+                    
+                    let html = `<h3 style="margin: 20px 0; color: #00d4ff;"><i class="fas fa-list"></i> ${unit.name} - Topics</h3>`;
+                    html += '<div class="topics-grid">';
+                    
+                    if (Object.keys(topics).length === 0) {
+                        html += '<p style="color: #00d4ff; text-align: center; grid-column: 1/-1;">No topics available</p>';
+                    } else {
+                        Object.keys(topics).forEach(key => {
+                            const topic = topics[key];
+                            const isPractical = topic.practical3d ? true : false;
+                            html += `
+                                <div class="topic-card" onclick="navigateTo('content', '${branchId}', ${semesterId}, '${subjectId}', '${unitId}', '${key}')">
+                                    ${isPractical ? '<span class="practical-badge">3D</span>' : ''}
+                                    <div class="topic-number">${topic.number || '1.1'}</div>
+                                    <div class="topic-title">${topic.name}</div>
+                                </div>
+                            `;
+                        });
+                    }
+                    
+                    html += '</div>';
+                    content.innerHTML = html;
+                });
+            });
         }
 
-        // Load Content
-        function loadContent(branchId, semesterId, subjectId, unitId) {
+        // Load Content (with 3 options)
+        function loadContent(branchId, semesterId, subjectId, unitId, topicId) {
             const content = document.getElementById('studentContent');
             
-            database.ref(`branches/${branchId}/semesters/${semesterId}/subjects/${subjectId}/units/${unitId}`).once('value', (snapshot) => {
-                const unit = snapshot.val() || {};
+            database.ref(`branches/${branchId}/semesters/${semesterId}/subjects/${subjectId}/units/${unitId}/topics/${topicId}`).once('value', (snapshot) => {
+                const topic = snapshot.val() || { name: 'Topic', number: '1.1' };
                 
                 let html = `
                     <div class="content-viewer">
-                        <h3 style="color: #00d4ff; margin-bottom: 20px;">${unit.name}</h3>
+                        <h3 style="color: #00d4ff; margin-bottom: 20px; text-align: center;">${topic.number} - ${topic.name}</h3>
+                        
                         <div class="content-tabs">
-                            <button class="content-tab active" onclick="showContentType('video', '${branchId}', ${semesterId}, '${subjectId}', '${unitId}')">
-                                <i class="fas fa-video"></i> Video Lecture
+                            <button class="content-tab active" onclick="showTopicContent('video', '${branchId}', ${semesterId}, '${subjectId}', '${unitId}', '${topicId}')">
+                                <i class="fas fa-video"></i> Video
                             </button>
-                            <button class="content-tab" onclick="showContentType('notes', '${branchId}', ${semesterId}, '${subjectId}', '${unitId}')">
-                                <i class="fas fa-file-pdf"></i> Notes PDF
+                            <button class="content-tab" onclick="showTopicContent('notes', '${branchId}', ${semesterId}, '${subjectId}', '${unitId}', '${topicId}')">
+                                <i class="fas fa-file-alt"></i> Notes
                             </button>
-                        </div>
-                        <div class="content-display" id="contentDisplay">
                 `;
                 
-                if (unit.video) {
+                if (topic.practical3d) {
                     html += `
-                        <div class="video-container">
-                            <iframe src="${unit.video}" frameborder="0" allowfullscreen></iframe>
-                        </div>
+                            <button class="content-tab" onclick="showTopicContent('practical', '${branchId}', ${semesterId}, '${subjectId}', '${unitId}', '${topicId}')">
+                                <i class="fas fa-cube"></i> 3D Practical
+                            </button>
                     `;
-                } else if (unit.notesPdf) {
-                    html += `
-                        <div class="file-info">
-                            <i class="fas fa-file-pdf"></i>
-                            <a href="${unit.notesPdf}" target="_blank">Download Notes PDF</a>
-                        </div>
-                        <div class="pdf-container">
-                            <iframe src="${unit.notesPdf}" width="100%" height="400px"></iframe>
-                        </div>
-                    `;
-                } else {
-                    html += `<p style="text-align: center; color: #00d4ff;">No content available</p>`;
                 }
                 
                 html += `
+                        </div>
+                        
+                        <div class="content-display" id="contentDisplay">
+                            <div style="text-align: center; padding: 50px;">
+                                <i class="fas fa-play-circle" style="font-size: 5rem; color: #00d4ff; margin-bottom: 20px;"></i>
+                                <h3>Click on any tab to view content</h3>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -1442,79 +1667,171 @@
             });
         }
 
-        // Show Content Type
-        function showContentType(type, branchId, semesterId, subjectId, unitId) {
+        // Show Topic Content
+        function showTopicContent(type, branchId, semesterId, subjectId, unitId, topicId) {
             const tabs = document.querySelectorAll('.content-tab');
             tabs.forEach(tab => tab.classList.remove('active'));
             event.target.classList.add('active');
             
-            database.ref(`branches/${branchId}/semesters/${semesterId}/subjects/${subjectId}/units/${unitId}`).once('value', (snapshot) => {
-                const unit = snapshot.val() || {};
+            database.ref(`branches/${branchId}/semesters/${semesterId}/subjects/${subjectId}/units/${unitId}/topics/${topicId}`).once('value', (snapshot) => {
+                const topic = snapshot.val() || {};
                 const display = document.getElementById('contentDisplay');
                 
                 if (type === 'video') {
-                    if (unit.video) {
+                    if (topic.video) {
                         display.innerHTML = `
                             <div class="video-container">
-                                <iframe src="${unit.video}" frameborder="0" allowfullscreen></iframe>
+                                <iframe src="${topic.video}" frameborder="0" allowfullscreen></iframe>
                             </div>
                         `;
                     } else {
                         display.innerHTML = '<p style="text-align: center; color: #00d4ff;">No video available</p>';
                     }
-                } else if (type === 'notes') {
-                    if (unit.notesPdf) {
+                }
+                else if (type === 'notes') {
+                    if (topic.notesPdf) {
                         display.innerHTML = `
                             <div class="file-info">
                                 <i class="fas fa-file-pdf"></i>
-                                <a href="${unit.notesPdf}" target="_blank">Download Notes PDF</a>
+                                <a href="${topic.notesPdf}" target="_blank">Download Notes PDF</a>
                             </div>
                             <div class="pdf-container">
-                                <iframe src="${unit.notesPdf}" width="100%" height="400px"></iframe>
+                                <iframe src="${topic.notesPdf}" width="100%" height="400px"></iframe>
                             </div>
                         `;
                     } else {
-                        display.innerHTML = '<p style="text-align: center; color: #00d4ff;">No notes PDF available</p>';
+                        display.innerHTML = '<p style="text-align: center; color: #00d4ff;">No notes available</p>';
+                    }
+                }
+                else if (type === 'practical') {
+                    if (topic.practical3d) {
+                        display.innerHTML = `
+                            <div class="three-d-container" id="threeDContainer">
+                                <canvas id="threeDCanvas"></canvas>
+                                <div class="three-d-controls">
+                                    <button class="three-d-btn" onclick="rotate3D('left')"><i class="fas fa-rotate-left"></i></button>
+                                    <button class="three-d-btn" onclick="rotate3D('right')"><i class="fas fa-rotate-right"></i></button>
+                                    <button class="three-d-btn" onclick="zoom3D('in')"><i class="fas fa-search-plus"></i></button>
+                                    <button class="three-d-btn" onclick="zoom3D('out')"><i class="fas fa-search-minus"></i></button>
+                                </div>
+                            </div>
+                            <p style="text-align: center; color: #00d4ff; margin-top: 10px;">🔬 3D Practical Demonstration</p>
+                        `;
+                        setTimeout(init3D, 100);
+                    } else {
+                        display.innerHTML = '<p style="text-align: center; color: #00d4ff;">No 3D practical available</p>';
                     }
                 }
             });
         }
 
-        // Student Navigation
-        function studentNavigateTo(type, branchId = null, semesterId = null, subjectId = null, unitId = null) {
-            currentStudentPath.type = type;
-            currentStudentPath.branchId = branchId;
-            currentStudentPath.semesterId = semesterId;
-            currentStudentPath.subjectId = subjectId;
-            currentStudentPath.unitId = unitId;
+        // 3D Functions
+        function init3D() {
+            const canvas = document.getElementById('threeDCanvas');
+            if(!canvas) return;
             
-            updateStudentBreadcrumb();
-            loadStudentView();
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x1a1a2e);
+            
+            camera = new THREE.PerspectiveCamera(75, canvas.clientWidth / canvas.clientHeight, 0.1, 1000);
+            camera.position.z = 5;
+            
+            renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+            renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            
+            const ambientLight = new THREE.AmbientLight(0x404040);
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+            directionalLight.position.set(1, 1, 1);
+            scene.add(directionalLight);
+            
+            const backLight = new THREE.PointLight(0x00d4ff, 0.5);
+            backLight.position.set(-2, 0, -2);
+            scene.add(backLight);
+            
+            const geometry = new THREE.BoxGeometry(1.5, 1.5, 1.5);
+            const edges = new THREE.EdgesGeometry(geometry);
+            
+            const material = new THREE.MeshPhongMaterial({ 
+                color: 0x00d4ff,
+                transparent: true,
+                opacity: 0.3,
+                emissive: 0x112233
+            });
+            cube = new THREE.Mesh(geometry, material);
+            scene.add(cube);
+            
+            const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x00d4ff }));
+            cube.add(line);
+            
+            const particleGeometry = new THREE.BufferGeometry();
+            const particleCount = 100;
+            const positions = new Float32Array(particleCount * 3);
+            
+            for(let i = 0; i < particleCount * 3; i += 3) {
+                positions[i] = (Math.random() - 0.5) * 10;
+                positions[i+1] = (Math.random() - 0.5) * 10;
+                positions[i+2] = (Math.random() - 0.5) * 10;
+            }
+            
+            particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            const particleMaterial = new THREE.PointsMaterial({ color: 0x00d4ff, size: 0.05 });
+            const particles = new THREE.Points(particleGeometry, particleMaterial);
+            scene.add(particles);
+            
+            function animate() {
+                requestAnimationFrame(animate);
+                if(cube) {
+                    cube.rotation.x += rotationSpeed;
+                    cube.rotation.y += rotationSpeed;
+                }
+                renderer.render(scene, camera);
+            }
+            animate();
+        }
+
+        function rotate3D(direction) {
+            if(direction === 'left') rotationSpeed += 0.01;
+            else if(direction === 'right') rotationSpeed -= 0.01;
+        }
+
+        function zoom3D(direction) {
+            if(camera) {
+                if(direction === 'in') camera.position.z -= 0.5;
+                else if(direction === 'out') camera.position.z += 0.5;
+            }
         }
 
         // Update Student Breadcrumb
         function updateStudentBreadcrumb() {
             const breadcrumb = document.getElementById('studentBreadcrumb');
-            let html = '<span class="breadcrumb-item" onclick="studentNavigateTo(\'branches\')">Branches</span>';
+            let html = '<span class="breadcrumb-item" onclick="navigateTo(\'branches\')">Branches</span>';
             
             if (currentStudentPath.branchId) {
                 html += '<span class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>';
-                html += `<span class="breadcrumb-item" onclick="studentNavigateTo('semesters', '${currentStudentPath.branchId}')">Semesters</span>`;
+                html += `<span class="breadcrumb-item" onclick="navigateTo('semesters', '${currentStudentPath.branchId}')">Semesters</span>`;
             }
             
             if (currentStudentPath.semesterId) {
                 html += '<span class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>';
-                html += `<span class="breadcrumb-item" onclick="studentNavigateTo('subjects', '${currentStudentPath.branchId}', ${currentStudentPath.semesterId})">Subjects</span>`;
+                html += `<span class="breadcrumb-item" onclick="navigateTo('subjects', '${currentStudentPath.branchId}', ${currentStudentPath.semesterId})">Subjects</span>`;
             }
             
             if (currentStudentPath.subjectId) {
                 html += '<span class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>';
-                html += `<span class="breadcrumb-item" onclick="loadSubjectDetails('${currentStudentPath.branchId}', ${currentStudentPath.semesterId}, '${currentStudentPath.subjectId}')">${currentStudentPath.unitId ? 'Units' : 'Subject'}</span>`;
+                html += `<span class="breadcrumb-item" onclick="navigateTo('units', '${currentStudentPath.branchId}', ${currentStudentPath.semesterId}, '${currentStudentPath.subjectId}')">Units</span>`;
             }
             
             if (currentStudentPath.unitId) {
                 html += '<span class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>';
-                html += `<span class="breadcrumb-item active">Unit Content</span>`;
+                html += `<span class="breadcrumb-item" onclick="navigateTo('topics', '${currentStudentPath.branchId}', ${currentStudentPath.semesterId}, '${currentStudentPath.subjectId}', '${currentStudentPath.unitId}')">Topics</span>`;
+            }
+            
+            if (currentStudentPath.topicId) {
+                html += '<span class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>';
+                html += '<span class="breadcrumb-item active">Topic Content</span>';
             }
             
             breadcrumb.innerHTML = html;
@@ -1530,6 +1847,8 @@
                 loadAdminSubjects();
             } else if (currentAdminTab === 'units') {
                 loadAdminUnits();
+            } else if (currentAdminTab === 'topics') {
+                loadAdminTopics();
             } else if (currentAdminTab === 'content') {
                 loadAdminContent();
             }
@@ -1922,7 +2241,6 @@
             }
             
             if (editingItem) {
-                // Get existing data first to preserve questions PDF if not updating
                 database.ref(`branches/${branchId}/semesters/${semesterId}/subjects/${editingItem}`).once('value', (snapshot) => {
                     const existingData = snapshot.val() || {};
                     if (!currentQuestionsPdf && existingData.questionsPdf) {
@@ -1941,7 +2259,7 @@
                     });
                 });
             } else {
-                database.ref(`branches/${branchId}/semesters/${semesterId}/subjects`).push(subjectData).then((ref) => {
+                database.ref(`branches/${branchId}/semesters/${semesterId}/subjects`).push(subjectData).then(() => {
                     alert('Subject added successfully');
                     currentQuestionsPdf = null;
                     document.getElementById('subjectName').value = '';
@@ -1962,7 +2280,6 @@
             document.getElementById('subjectDescription').value = description;
             document.getElementById('unitCount').value = unitCount;
             
-            // Load existing questions PDF info
             database.ref(`branches/${branchId}/semesters/${semesterId}/subjects/${id}`).once('value', (snapshot) => {
                 const subject = snapshot.val() || {};
                 if (subject.questionsPdf) {
@@ -2011,6 +2328,9 @@
                     </div>
                     <div class="admin-input-group">
                         <input type="text" id="unitDescription" placeholder="Unit Description">
+                    </div>
+                    <div class="admin-input-group">
+                        <input type="number" id="topicCount" placeholder="Number of Topics">
                     </div>
                     <div class="admin-input-group">
                         <button class="admin-btn" onclick="saveUnit()">
@@ -2092,9 +2412,10 @@
                             <div class="admin-item-info">
                                 <h4>${unit.name}</h4>
                                 <p>${unit.description || ''}</p>
+                                <p>Topics: ${unit.topicCount || 0}</p>
                             </div>
                             <div class="admin-item-actions">
-                                <button class="edit" onclick="editUnit('${branchId}', ${semesterId}, '${subjectId}', '${key}', '${unit.name}', '${unit.description || ''}')">
+                                <button class="edit" onclick="editUnit('${branchId}', ${semesterId}, '${subjectId}', '${key}', '${unit.name}', '${unit.description || ''}', ${unit.topicCount || 0})">
                                     <i class="fas fa-edit"></i> Edit
                                 </button>
                                 <button class="delete" onclick="deleteUnit('${branchId}', ${semesterId}, '${subjectId}', '${key}')">
@@ -2116,6 +2437,7 @@
             const subjectId = document.getElementById('unitSubject').value;
             const name = document.getElementById('unitName').value;
             const description = document.getElementById('unitDescription').value;
+            const topicCount = document.getElementById('topicCount').value;
             
             if (!branchId || !semesterId || !subjectId || !name) {
                 alert('Please fill all required fields');
@@ -2125,6 +2447,7 @@
             const unitData = {
                 name: name,
                 description: description,
+                topicCount: topicCount || 0,
                 timestamp: Date.now()
             };
             
@@ -2134,6 +2457,7 @@
                     editingItem = null;
                     document.getElementById('unitName').value = '';
                     document.getElementById('unitDescription').value = '';
+                    document.getElementById('topicCount').value = '';
                     loadUnitsList(branchId, semesterId, subjectId);
                 });
             } else {
@@ -2141,19 +2465,21 @@
                     alert('Unit added successfully');
                     document.getElementById('unitName').value = '';
                     document.getElementById('unitDescription').value = '';
+                    document.getElementById('topicCount').value = '';
                     loadUnitsList(branchId, semesterId, subjectId);
                 });
             }
         }
 
         // Edit Unit
-        function editUnit(branchId, semesterId, subjectId, id, name, description) {
+        function editUnit(branchId, semesterId, subjectId, id, name, description, topicCount) {
             editingItem = id;
             document.getElementById('unitBranch').value = branchId;
             document.getElementById('unitSemester').value = semesterId;
             document.getElementById('unitSubject').value = subjectId;
             document.getElementById('unitName').value = name;
             document.getElementById('unitDescription').value = description;
+            document.getElementById('topicCount').value = topicCount;
         }
 
         // Delete Unit
@@ -2162,6 +2488,226 @@
                 database.ref(`branches/${branchId}/semesters/${semesterId}/subjects/${subjectId}/units/${id}`).remove().then(() => {
                     alert('Unit deleted successfully');
                     loadUnitsList(branchId, semesterId, subjectId);
+                });
+            }
+        }
+
+        // Load Admin Topics
+        function loadAdminTopics() {
+            const forms = document.getElementById('adminForms');
+            forms.innerHTML = `
+                <div class="admin-form">
+                    <div class="admin-input-group">
+                        <select id="topicBranch" onchange="loadTopicSemesters(this.value)">
+                            <option value="">Select Branch</option>
+                        </select>
+                    </div>
+                    <div class="admin-input-group">
+                        <select id="topicSemester" onchange="loadTopicSubjects()">
+                            <option value="">Select Semester</option>
+                        </select>
+                    </div>
+                    <div class="admin-input-group">
+                        <select id="topicSubject" onchange="loadTopicUnits()">
+                            <option value="">Select Subject</option>
+                        </select>
+                    </div>
+                    <div class="admin-input-group">
+                        <select id="topicUnit">
+                            <option value="">Select Unit</option>
+                        </select>
+                    </div>
+                    <div class="admin-input-group">
+                        <input type="text" id="topicNumber" placeholder="Topic Number (e.g., 1.1)">
+                    </div>
+                    <div class="admin-input-group">
+                        <input type="text" id="topicName" placeholder="Topic Name">
+                    </div>
+                    <div class="admin-input-group">
+                        <label style="color: #00d4ff; display: flex; align-items: center; gap: 10px;">
+                            <input type="checkbox" id="hasPractical"> Has 3D Practical
+                        </label>
+                    </div>
+                    <div class="admin-input-group">
+                        <button class="admin-btn" onclick="saveTopic()">
+                            <i class="fas fa-save"></i> Save Topic
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            // Load branches for dropdown
+            database.ref('branches').once('value', (snapshot) => {
+                const branches = snapshot.val() || {};
+                const select = document.getElementById('topicBranch');
+                
+                Object.keys(branches).forEach(key => {
+                    const option = document.createElement('option');
+                    option.value = key;
+                    option.textContent = branches[key].name;
+                    select.appendChild(option);
+                });
+            });
+            
+            const list = document.getElementById('adminList');
+            list.innerHTML = '<p style="text-align: center; color: #00d4ff;">Select branch, semester, subject, and unit to view topics</p>';
+        }
+
+        // Load Topic Semesters
+        function loadTopicSemesters(branchId) {
+            if (!branchId) return;
+            
+            const select = document.getElementById('topicSemester');
+            select.innerHTML = '<option value="">Select Semester</option>';
+            
+            for (let i = 1; i <= 6; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = `Semester ${i}`;
+                select.appendChild(option);
+            }
+        }
+
+        // Load Topic Subjects
+        function loadTopicSubjects() {
+            const branchId = document.getElementById('topicBranch').value;
+            const semesterId = document.getElementById('topicSemester').value;
+            
+            if (!branchId || !semesterId) return;
+            
+            const select = document.getElementById('topicSubject');
+            select.innerHTML = '<option value="">Select Subject</option>';
+            
+            database.ref(`branches/${branchId}/semesters/${semesterId}/subjects`).once('value', (snapshot) => {
+                const subjects = snapshot.val() || {};
+                
+                Object.keys(subjects).forEach(key => {
+                    const option = document.createElement('option');
+                    option.value = key;
+                    option.textContent = subjects[key].name;
+                    select.appendChild(option);
+                });
+            });
+        }
+
+        // Load Topic Units
+        function loadTopicUnits() {
+            const branchId = document.getElementById('topicBranch').value;
+            const semesterId = document.getElementById('topicSemester').value;
+            const subjectId = document.getElementById('topicSubject').value;
+            
+            if (!branchId || !semesterId || !subjectId) return;
+            
+            const select = document.getElementById('topicUnit');
+            select.innerHTML = '<option value="">Select Unit</option>';
+            
+            database.ref(`branches/${branchId}/semesters/${semesterId}/subjects/${subjectId}/units`).once('value', (snapshot) => {
+                const units = snapshot.val() || {};
+                
+                Object.keys(units).forEach(key => {
+                    const option = document.createElement('option');
+                    option.value = key;
+                    option.textContent = units[key].name;
+                    select.appendChild(option);
+                });
+            });
+        }
+
+        // Load Topics List
+        function loadTopicsList(branchId, semesterId, subjectId, unitId) {
+            if (!branchId || !semesterId || !subjectId || !unitId) return;
+            
+            const list = document.getElementById('adminList');
+            list.innerHTML = '<div class="loader"><div class="loader-circle"></div><div class="loader-circle"></div><div class="loader-circle"></div></div>';
+            
+            database.ref(`branches/${branchId}/semesters/${semesterId}/subjects/${subjectId}/units/${unitId}/topics`).once('value', (snapshot) => {
+                const topics = snapshot.val() || {};
+                let html = '<h3>Topics List</h3>';
+                
+                Object.keys(topics).forEach(key => {
+                    const topic = topics[key];
+                    html += `
+                        <div class="admin-item">
+                            <div class="admin-item-info">
+                                <h4>${topic.number} - ${topic.name}</h4>
+                                <p>${topic.practical3d ? '✅ Has 3D Practical' : '❌ No 3D Practical'}</p>
+                            </div>
+                            <div class="admin-item-actions">
+                                <button class="edit" onclick="editTopic('${branchId}', ${semesterId}, '${subjectId}', '${unitId}', '${key}', '${topic.number}', '${topic.name}', ${topic.practical3d})">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+                                <button class="delete" onclick="deleteTopic('${branchId}', ${semesterId}, '${subjectId}', '${unitId}', '${key}')">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                list.innerHTML = html;
+            });
+        }
+
+        // Save Topic
+        function saveTopic() {
+            const branchId = document.getElementById('topicBranch').value;
+            const semesterId = document.getElementById('topicSemester').value;
+            const subjectId = document.getElementById('topicSubject').value;
+            const unitId = document.getElementById('topicUnit').value;
+            const number = document.getElementById('topicNumber').value;
+            const name = document.getElementById('topicName').value;
+            const hasPractical = document.getElementById('hasPractical').checked;
+            
+            if (!branchId || !semesterId || !subjectId || !unitId || !number || !name) {
+                alert('Please fill all required fields');
+                return;
+            }
+            
+            const topicData = {
+                number: number,
+                name: name,
+                practical3d: hasPractical,
+                timestamp: Date.now()
+            };
+            
+            if (editingItem) {
+                database.ref(`branches/${branchId}/semesters/${semesterId}/subjects/${subjectId}/units/${unitId}/topics/${editingItem}`).update(topicData).then(() => {
+                    alert('Topic updated successfully');
+                    editingItem = null;
+                    document.getElementById('topicNumber').value = '';
+                    document.getElementById('topicName').value = '';
+                    document.getElementById('hasPractical').checked = false;
+                    loadTopicsList(branchId, semesterId, subjectId, unitId);
+                });
+            } else {
+                database.ref(`branches/${branchId}/semesters/${semesterId}/subjects/${subjectId}/units/${unitId}/topics`).push(topicData).then(() => {
+                    alert('Topic added successfully');
+                    document.getElementById('topicNumber').value = '';
+                    document.getElementById('topicName').value = '';
+                    document.getElementById('hasPractical').checked = false;
+                    loadTopicsList(branchId, semesterId, subjectId, unitId);
+                });
+            }
+        }
+
+        // Edit Topic
+        function editTopic(branchId, semesterId, subjectId, unitId, id, number, name, practical3d) {
+            editingItem = id;
+            document.getElementById('topicBranch').value = branchId;
+            document.getElementById('topicSemester').value = semesterId;
+            document.getElementById('topicSubject').value = subjectId;
+            document.getElementById('topicUnit').value = unitId;
+            document.getElementById('topicNumber').value = number;
+            document.getElementById('topicName').value = name;
+            document.getElementById('hasPractical').checked = practical3d;
+        }
+
+        // Delete Topic
+        function deleteTopic(branchId, semesterId, subjectId, unitId, id) {
+            if (confirm('Are you sure you want to delete this topic?')) {
+                database.ref(`branches/${branchId}/semesters/${semesterId}/subjects/${subjectId}/units/${unitId}/topics/${id}`).remove().then(() => {
+                    alert('Topic deleted successfully');
+                    loadTopicsList(branchId, semesterId, subjectId, unitId);
                 });
             }
         }
@@ -2187,8 +2733,13 @@
                         </select>
                     </div>
                     <div class="admin-input-group">
-                        <select id="contentUnit">
+                        <select id="contentUnit" onchange="loadContentTopics()">
                             <option value="">Select Unit</option>
+                        </select>
+                    </div>
+                    <div class="admin-input-group">
+                        <select id="contentTopic">
+                            <option value="">Select Topic</option>
                         </select>
                     </div>
                     <div class="admin-input-group">
@@ -2203,8 +2754,16 @@
                         </div>
                     </div>
                     <div class="admin-input-group">
-                        <button class="admin-btn" onclick="saveUnitContent()">
-                            <i class="fas fa-save"></i> Save Unit Content
+                        <div class="file-upload">
+                            <input type="file" id="practical3d" accept=".mp4,.webm" onchange="handlePractical3dUpload(this)">
+                            <label for="practical3d" class="file-upload-label">
+                                <i class="fas fa-upload"></i> Upload 3D Practical Video
+                            </label>
+                        </div>
+                    </div>
+                    <div class="admin-input-group">
+                        <button class="admin-btn" onclick="saveTopicContent()">
+                            <i class="fas fa-save"></i> Save Topic Content
                         </button>
                     </div>
                 </div>
@@ -2225,7 +2784,7 @@
             });
             
             const list = document.getElementById('adminList');
-            list.innerHTML = '<p style="text-align: center; color: #00d4ff;">Select branch, semester, subject, and unit to edit content</p>';
+            list.innerHTML = '<p style="text-align: center; color: #00d4ff;">Select branch, semester, subject, unit, and topic to edit content</p>';
         }
 
         // Handle Notes PDF Upload
@@ -2240,6 +2799,26 @@
                 reader.onload = function(e) {
                     currentNotesPdf = e.target.result;
                     progressDiv.innerHTML = 'Notes PDF uploaded successfully!';
+                    setTimeout(() => {
+                        progressDiv.style.display = 'none';
+                    }, 3000);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Handle 3D Practical Upload
+        function handlePractical3dUpload(input) {
+            const file = input.files[0];
+            if (file) {
+                const progressDiv = document.getElementById('uploadProgress');
+                progressDiv.style.display = 'block';
+                progressDiv.innerHTML = 'Uploading 3D Practical Video...';
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    currentPractical3d = e.target.result;
+                    progressDiv.innerHTML = '3D Practical uploaded successfully!';
                     setTimeout(() => {
                         progressDiv.style.display = 'none';
                     }, 3000);
@@ -2308,15 +2887,41 @@
             });
         }
 
-        // Save Unit Content
-        function saveUnitContent() {
+        // Load Content Topics
+        function loadContentTopics() {
             const branchId = document.getElementById('contentBranch').value;
             const semesterId = document.getElementById('contentSemester').value;
             const subjectId = document.getElementById('contentSubject').value;
             const unitId = document.getElementById('contentUnit').value;
+            
+            if (!branchId || !semesterId || !subjectId || !unitId) return;
+            
+            const select = document.getElementById('contentTopic');
+            select.innerHTML = '<option value="">Select Topic</option>';
+            
+            database.ref(`branches/${branchId}/semesters/${semesterId}/subjects/${subjectId}/units/${unitId}/topics`).once('value', (snapshot) => {
+                const topics = snapshot.val() || {};
+                
+                Object.keys(topics).forEach(key => {
+                    const topic = topics[key];
+                    const option = document.createElement('option');
+                    option.value = key;
+                    option.textContent = `${topic.number} - ${topic.name}`;
+                    select.appendChild(option);
+                });
+            });
+        }
+
+        // Save Topic Content
+        function saveTopicContent() {
+            const branchId = document.getElementById('contentBranch').value;
+            const semesterId = document.getElementById('contentSemester').value;
+            const subjectId = document.getElementById('contentSubject').value;
+            const unitId = document.getElementById('contentUnit').value;
+            const topicId = document.getElementById('contentTopic').value;
             const video = document.getElementById('contentVideo').value;
             
-            if (!branchId || !semesterId || !subjectId || !unitId) {
+            if (!branchId || !semesterId || !subjectId || !unitId || !topicId) {
                 alert('Please select all fields');
                 return;
             }
@@ -2325,23 +2930,24 @@
             
             if (video) contentData.video = video;
             if (currentNotesPdf) contentData.notesPdf = currentNotesPdf;
+            if (currentPractical3d) contentData.practical3d = currentPractical3d;
             
             contentData.timestamp = Date.now();
             
-            // Get existing data first
-            database.ref(`branches/${branchId}/semesters/${semesterId}/subjects/${subjectId}/units/${unitId}`).once('value', (snapshot) => {
+            database.ref(`branches/${branchId}/semesters/${semesterId}/subjects/${subjectId}/units/${unitId}/topics/${topicId}`).once('value', (snapshot) => {
                 const existingData = snapshot.val() || {};
                 
-                // Preserve existing notes PDF if not updating
-                if (!currentNotesPdf && existingData.notesPdf) {
-                    contentData.notesPdf = existingData.notesPdf;
-                }
+                if (!video && existingData.video) contentData.video = existingData.video;
+                if (!currentNotesPdf && existingData.notesPdf) contentData.notesPdf = existingData.notesPdf;
+                if (!currentPractical3d && existingData.practical3d) contentData.practical3d = existingData.practical3d;
                 
-                database.ref(`branches/${branchId}/semesters/${semesterId}/subjects/${subjectId}/units/${unitId}`).update(contentData).then(() => {
-                    alert('Unit content saved successfully');
+                database.ref(`branches/${branchId}/semesters/${semesterId}/subjects/${subjectId}/units/${unitId}/topics/${topicId}`).update(contentData).then(() => {
+                    alert('Topic content saved successfully');
                     document.getElementById('contentVideo').value = '';
                     document.getElementById('notesPdf').value = '';
+                    document.getElementById('practical3d').value = '';
                     currentNotesPdf = null;
+                    currentPractical3d = null;
                 });
             });
         }
@@ -2365,25 +2971,81 @@
                 }
             }
             
-            if (e.target.id === 'contentUnit') {
+            if (e.target.id === 'topicUnit') {
+                const branchId = document.getElementById('topicBranch')?.value;
+                const semesterId = document.getElementById('topicSemester')?.value;
+                const subjectId = document.getElementById('topicSubject')?.value;
+                const unitId = e.target.value;
+                if (branchId && semesterId && subjectId && unitId) {
+                    loadTopicsList(branchId, semesterId, subjectId, unitId);
+                }
+            }
+            
+            if (e.target.id === 'contentTopic') {
                 const branchId = document.getElementById('contentBranch')?.value;
                 const semesterId = document.getElementById('contentSemester')?.value;
                 const subjectId = document.getElementById('contentSubject')?.value;
-                const unitId = e.target.value;
+                const unitId = document.getElementById('contentUnit')?.value;
+                const topicId = e.target.value;
                 
-                if (branchId && semesterId && subjectId && unitId) {
-                    database.ref(`branches/${branchId}/semesters/${semesterId}/subjects/${subjectId}/units/${unitId}`).once('value', (snapshot) => {
-                        const unit = snapshot.val() || {};
-                        document.getElementById('contentVideo').value = unit.video || '';
+                if (branchId && semesterId && subjectId && unitId && topicId) {
+                    database.ref(`branches/${branchId}/semesters/${semesterId}/subjects/${subjectId}/units/${unitId}/topics/${topicId}`).once('value', (snapshot) => {
+                        const topic = snapshot.val() || {};
+                        document.getElementById('contentVideo').value = topic.video || '';
                         document.getElementById('notesPdf').value = '';
-                        currentNotesPdf = unit.notesPdf || null;
+                        document.getElementById('practical3d').value = '';
+                        currentNotesPdf = topic.notesPdf || null;
+                        currentPractical3d = topic.practical3d || null;
                     });
                 }
             }
         });
 
-        // Initialize with student view
-        switchMode('student');
+        // Mobile Menu Toggle
+        function toggleMenu() {
+            const navLinks = document.querySelector('.nav-links');
+            navLinks.classList.toggle('active');
+            
+            const menuToggle = document.querySelector('.menu-toggle i');
+            if(navLinks.classList.contains('active')) {
+                menuToggle.classList.remove('fa-bars');
+                menuToggle.classList.add('fa-times');
+            } else {
+                menuToggle.classList.remove('fa-times');
+                menuToggle.classList.add('fa-bars');
+            }
+        }
+
+        // Back to Top
+        const backToTop = document.getElementById('backToTop');
+        
+        window.addEventListener('scroll', () => {
+            if(window.scrollY > 500) {
+                backToTop.classList.add('show');
+            } else {
+                backToTop.classList.remove('show');
+            }
+        });
+
+        backToTop.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            const navLinks = document.querySelector('.nav-links');
+            const menuToggle = document.querySelector('.menu-toggle');
+            
+            if (!navLinks.contains(e.target) && !menuToggle.contains(e.target) && navLinks.classList.contains('active')) {
+                navLinks.classList.remove('active');
+                document.querySelector('.menu-toggle i').classList.remove('fa-times');
+                document.querySelector('.menu-toggle i').classList.add('fa-bars');
+            }
+        });
+
+        // Initialize
+        navigateTo('branches');
     </script>
 </body>
 </html>
